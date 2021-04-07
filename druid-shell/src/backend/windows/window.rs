@@ -1528,6 +1528,10 @@ impl WindowBuilder {
         self.always_on_top = always_on_top;
     }
 
+    pub fn show_title(&mut self, _show_title: bool) {
+        // Ignored
+    }
+
     pub fn set_transparent(&mut self, transparent: bool) {
         // Transparency and Flip is only supported on Windows 8 and newer and
         // require DComposition
@@ -1539,6 +1543,10 @@ impl WindowBuilder {
                 tracing::warn!("Transparency requires Windows 8 or newer");
             }
         }
+    }
+
+    pub fn set_transparent_titlebar(&mut self, _transparent_titlebar: bool) {
+        // Ignored
     }
 
     pub fn set_title<S: Into<String>>(&mut self, title: S) {
