@@ -1,16 +1,5 @@
-// Copyright 2022 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2022 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 #![allow(clippy::single_match)]
 
@@ -120,6 +109,10 @@ impl WindowHandle {
         tracing::warn!("set_always_on_top is unimplemented on wayland");
     }
 
+    pub fn set_mouse_pass_through(&self, _mouse_pass_thorugh: bool) {
+        tracing::warn!("set_mouse_pass_through unimplemented");
+    }
+
     pub fn set_input_region(&self, region: Option<Region>) {
         self.inner.surface.set_input_region(region);
     }
@@ -139,6 +132,10 @@ impl WindowHandle {
 
     pub fn get_size(&self) -> Size {
         self.inner.surface.get_size()
+    }
+
+    pub fn is_foreground_window(&self) -> bool {
+        true
     }
 
     pub fn set_window_state(&mut self, _current_state: window::WindowState) {
@@ -424,7 +421,7 @@ impl WindowBuilder {
     }
 
     pub fn build(self) -> Result<WindowHandle, ShellError> {
-        if matches!(self.menu, Some(_)) {
+        if self.menu.is_some() {
             tracing::warn!("menus unimplemented for wayland");
         }
 
@@ -552,7 +549,7 @@ pub mod layershell {
 
             let handle = WindowHandle::new(
                 surface.clone(),
-                surfaces::surface::Dead::default(),
+                surfaces::surface::Dead,
                 surface.clone(),
                 surface.clone(),
                 self.appdata.clone(),
@@ -622,7 +619,7 @@ pub mod popup {
 
         let handle = WindowHandle::new(
             surface.clone(),
-            surfaces::surface::Dead::default(),
+            surfaces::surface::Dead,
             surface.clone(),
             surface.clone(),
             wappdata,

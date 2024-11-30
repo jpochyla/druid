@@ -1,16 +1,5 @@
-// Copyright 2018 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2018 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! Platform independent window types.
 
@@ -236,6 +225,11 @@ impl WindowHandle {
         self.0.set_always_on_top(always_on_top);
     }
 
+    /// Sets whether the mouse passes through the window to whatever is behind.
+    pub fn set_mouse_pass_through(&self, mouse_pass_through: bool) {
+        self.0.set_mouse_pass_through(mouse_pass_through);
+    }
+
     /// Sets where in the window the user can interact with the program.
     ///
     /// This enables irregularly shaped windows. For example, you can make it simply
@@ -253,6 +247,12 @@ impl WindowHandle {
     /// [display points]: crate::Scale
     pub fn set_input_region(&self, region: Option<Region>) {
         self.0.set_input_region(region)
+    }
+
+    /// Returns true if the window is the foreground window or this is unknown.
+    /// Returns false if a different window is known to be the foreground window.
+    pub fn is_foreground_window(&self) -> bool {
+        self.0.is_foreground_window()
     }
 
     /// Returns the position of the top left corner of the window.
@@ -439,7 +439,7 @@ impl WindowHandle {
 
     /// Get the DPI scale of the window.
     ///
-    /// The returned [`Scale`](crate::Scale) is a copy and thus its information will be stale after
+    /// The returned [`Scale`] is a copy and thus its information will be stale after
     /// the platform DPI changes. This means you should not stash it and rely on it later; it is
     /// only guaranteed to be valid for the current pass of the runloop.
     // TODO: Can we get rid of the Result/Error for ergonomics?
@@ -461,7 +461,7 @@ pub struct WindowBuilder(backend::WindowBuilder);
 impl WindowBuilder {
     /// Create a new `WindowBuilder`.
     ///
-    /// Takes the [`Application`](crate::Application) that this window is for.
+    /// Takes the [`Application`] that this window is for.
     pub fn new(app: Application) -> WindowBuilder {
         WindowBuilder(backend::WindowBuilder::new(app.backend_app))
     }

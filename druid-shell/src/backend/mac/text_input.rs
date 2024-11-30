@@ -1,16 +1,5 @@
-// Copyright 2020 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2020 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 // massive thanks to github.com/yvt and their project tcw3 (https://github.com/yvt/Stella2), which is some
 // of the most solid/well documented input method code for mac written in Rust that we've found. tcw3 was
@@ -608,7 +597,7 @@ fn decode_nsrange(
     range: &NSRange,
     start_offset: usize,
 ) -> Option<Range<usize>> {
-    if range.location as usize >= i32::max_value() as usize {
+    if range.location as usize >= i32::MAX as usize {
         return None;
     }
     let start_offset_utf16 = edit_lock.utf8_to_utf16(0..start_offset);

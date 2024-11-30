@@ -1,16 +1,5 @@
-// Copyright 2021 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2021 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! A minimal wrapper around Xkb for our use.
 
@@ -270,8 +259,7 @@ impl State {
             }
             // add 1 because we will get a null-terminated string.
             let len = usize::try_from(len).unwrap() + 1;
-            let mut buf: Vec<u8> = Vec::new();
-            buf.resize(len, 0);
+            let mut buf: Vec<u8> = vec![0; len];
             xkb_state_key_get_utf8(self.state, scancode, buf.as_mut_ptr() as *mut c_char, len);
             assert!(buf[buf.len() - 1] == 0);
             buf.pop();

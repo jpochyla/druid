@@ -1,16 +1,5 @@
-// Copyright 2017 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2017 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! Various utilities for working with windows. Includes utilities for converting between Windows
 //! and Rust types, including strings.
@@ -61,6 +50,7 @@ impl From<HRESULT> for Error {
 }
 
 pub trait ToWide {
+    #[allow(dead_code)]
     fn to_wide_sized(&self) -> Vec<u16>;
     fn to_wide(&self) -> Vec<u16>;
 }
@@ -158,6 +148,7 @@ type DCompositionCreateDevice = unsafe extern "system" fn(
 
 #[allow(non_snake_case)] // For member fields
 pub struct OptionalFunctions {
+    #[allow(dead_code)]
     pub GetDpiForSystem: Option<GetDpiForSystem>,
     pub GetDpiForWindow: Option<GetDpiForWindow>,
     pub SetProcessDpiAwarenessContext: Option<SetProcessDpiAwarenessContext>,
@@ -189,6 +180,7 @@ fn load_optional_functions() -> OptionalFunctions {
                     $min_windows_version
                 );
             } else {
+                #[allow(clippy::missing_transmute_annotations)]
                 let function = unsafe { mem::transmute::<_, $function>(function_ptr) };
                 $function = Some(function);
             }

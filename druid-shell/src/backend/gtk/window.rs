@@ -1,16 +1,5 @@
-// Copyright 2019 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2019 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! GTK window creation and management.
 
@@ -1075,6 +1064,10 @@ impl WindowHandle {
         }
     }
 
+    pub fn is_foreground_window(&self) -> bool {
+        true
+    }
+
     pub fn set_window_state(&mut self, size_state: window::WindowState) {
         use window::WindowState::{Maximized, Minimized, Restored};
         let cur_size_state = self.get_window_state();
@@ -1139,6 +1132,10 @@ impl WindowHandle {
         if let Some(state) = self.state.upgrade() {
             state.window.set_keep_above(always_on_top);
         }
+    }
+
+    pub fn set_mouse_pass_through(&self, _mouse_pass_thorugh: bool) {
+        warn!("set_mouse_pass_through unimplemented");
     }
 
     pub fn handle_titlebar(&self, val: bool) {

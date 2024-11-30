@@ -1,16 +1,5 @@
-// Copyright 2021 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2021 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! A textbox that that parses and validates data.
 
@@ -32,16 +21,16 @@ const COMPLETE_EDITING: Selector = Selector::new("druid.builtin.textbox-complete
 /// in relation to the provided [`Formatter`]:
 ///
 /// - [`ValueTextBox::validate_while_editing`] takes a flag that determines whether
-/// or not the textbox can display text that is not valid, while editing is
-/// in progress. (Text will still be validated when the user attempts to complete
-/// editing.)
+///   or not the textbox can display text that is not valid, while editing is
+///   in progress. (Text will still be validated when the user attempts to complete
+///   editing.)
 ///
 /// - [`ValueTextBox::update_data_while_editing`] takes a flag that determines
-/// whether the output value is updated during editing, when possible.
+///   whether the output value is updated during editing, when possible.
 ///
 /// - [`ValueTextBox::delegate`] allows you to provide some implementation of
-/// the [`ValidationDelegate`] trait, which receives a callback during editing;
-/// this can be used to report errors further back up the tree.
+///   the [`ValidationDelegate`] trait, which receives a callback during editing;
+///   this can be used to report errors further back up the tree.
 pub struct ValueTextBox<T> {
     child: TextBox<String>,
     formatter: Box<dyn Formatter<T>>,

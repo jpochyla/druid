@@ -1,16 +1,5 @@
-// Copyright 2019 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2019 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! Events.
 
@@ -163,14 +152,14 @@ pub enum Event {
     /// may be generated from a number of sources:
     ///
     /// - If your application uses  menus (either window or context menus)
-    /// then the [`MenuItem`]s in the menu will each correspond to a `Command`.
-    /// When the menu item is selected, that [`Command`] will be delivered to
-    /// the root widget of the appropriate window.
+    ///   then the [`MenuItem`]s in the menu will each correspond to a `Command`.
+    ///   When the menu item is selected, that [`Command`] will be delivered to
+    ///   the root widget of the appropriate window.
     /// - If you are doing work in another thread (using an [`ExtEventSink`])
-    /// then [`Command`]s are the mechanism by which you communicate back to
-    /// the main thread.
+    ///   then [`Command`]s are the mechanism by which you communicate back to
+    ///   the main thread.
     /// - Widgets and other Druid components can send custom [`Command`]s at
-    /// runtime, via methods such as [`EventCtx::submit_command`].
+    ///   runtime, via methods such as [`EventCtx::submit_command`].
     ///
     /// [`Widget`]: Widget
     /// [`EventCtx::submit_command`]: crate::EventCtx::submit_command

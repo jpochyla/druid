@@ -1,16 +1,5 @@
-// Copyright 2020 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2020 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! Types and functions for cross-platform text input.
 //!
@@ -401,11 +390,11 @@ pub trait InputHandler {
     /// This method also sets the composition range to `None`, and updates the
     /// selection:
     ///
-    /// - If both the selection's anchor and active are `< range.start`, then
-    /// nothing is updated.  - If both the selection's anchor and active are `>
-    /// range.end`, then subtract `range.len()` from both, and add `text.len()`.
-    /// - If neither of the previous two conditions are true, then set both
-    /// anchor and active to `range.start + text.len()`.
+    /// - If both the selection's anchor and active are `< range.start`, then nothing is updated.
+    /// - If both the selection's anchor and active are `> range.end`, then subtract `range.len()`
+    ///   from both, and add `text.len()`.
+    /// - If neither of the previous two conditions are true, then set both anchor and active to
+    ///   `range.start + text.len()`.
     ///
     /// After the above update, if we increase each end of the selection if
     /// necessary to put it on a grapheme cluster boundary.

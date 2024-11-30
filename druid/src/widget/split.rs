@@ -1,16 +1,5 @@
-// Copyright 2019 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2019 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! A widget which splits an area in two, with a settable ratio, and optional draggable resizing.
 
@@ -431,7 +420,7 @@ impl<T: Data> Widget<T> for Split<T> {
         self.split_point_effective = {
             let (min_limit, max_limit) = self.split_side_limits(reduced_size);
             let reduced_axis_size = self.split_axis.major(reduced_size);
-            if reduced_axis_size.is_infinite() || reduced_axis_size <= std::f64::EPSILON {
+            if reduced_axis_size.is_infinite() || reduced_axis_size <= f64::EPSILON {
                 0.5
             } else {
                 self.split_point_chosen

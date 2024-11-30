@@ -1,16 +1,5 @@
-// Copyright 2018 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2018 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! Creation and management of windows.
 
@@ -100,6 +89,7 @@ pub(crate) struct WindowBuilder {
     position: Option<Point>,
     level: Option<WindowLevel>,
     always_on_top: bool,
+    mouse_pass_through: bool,
     state: window::WindowState,
 }
 
@@ -151,7 +141,7 @@ pub enum PresentStrategy {
 /// 1. the system hands a mouse click event to `druid-shell`
 /// 2. `druid-shell` calls `WinHandler::mouse_up`
 /// 3. after some processing, the `WinHandler` calls `WindowHandle::save_as`, which schedules a
-///   deferred op and returns immediately
+///    deferred op and returns immediately
 /// 4. after some more processing, `WinHandler::mouse_up` returns
 /// 5. `druid-shell` displays the "save as" dialog that was requested in step 3.
 enum DeferredOp {
@@ -167,6 +157,7 @@ enum DeferredOp {
     ReleaseMouseCapture,
     SetRegion(Option<Region>),
     SetAlwaysOnTop(bool),
+    SetMousePassThrough(bool),
 }
 
 #[derive(Clone, Debug)]
@@ -243,6 +234,7 @@ struct WindowState {
     is_focusable: bool,
     window_level: WindowLevel,
     is_always_on_top: Cell<bool>,
+    is_mouse_pass_through: Cell<bool>,
 }
 
 impl std::fmt::Debug for WindowState {
@@ -309,7 +301,7 @@ struct DxgiState {
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct CustomCursor(Arc<HCursor>);
+pub struct CustomCursor(Rc<HCursor>);
 
 #[derive(PartialEq, Eq)]
 struct HCursor(HCURSOR);
@@ -470,6 +462,38 @@ fn set_ex_style(hwnd: HWND, always_on_top: bool) {
                 Error::Hr(HRESULT_FROM_WIN32(GetLastError()))
             );
         };
+    }
+}
+
+fn set_mouse_pass_through(hwnd: HWND, mouse_pass_through: bool) {
+    unsafe {
+        let mut style = GetWindowLongPtrW(hwnd, GWL_EXSTYLE) as u32;
+        if style == 0 {
+            warn!(
+                "failed to get window ex style: {}",
+                Error::Hr(HRESULT_FROM_WIN32(GetLastError()))
+            );
+            return;
+        }
+
+        if !mouse_pass_through {
+            // Not removing WS_EX_LAYERED because it may still be needed if Opacity != 1.
+            style &= !WS_EX_TRANSPARENT;
+        } else if (style & (WS_EX_LAYERED | WS_EX_TRANSPARENT))
+            != (WS_EX_LAYERED | WS_EX_TRANSPARENT)
+        {
+            // We have to add WS_EX_LAYERED, because WS_EX_TRANSPARENT won't work otherwise.
+            style |= WS_EX_LAYERED | WS_EX_TRANSPARENT;
+        } else {
+            // nothing to do
+            return;
+        }
+        if SetWindowLongPtrW(hwnd, GWL_EXSTYLE, style as _) == 0 {
+            warn!(
+                "failed to set the window ex style: {}",
+                Error::Hr(HRESULT_FROM_WIN32(GetLastError()))
+            );
+        }
     }
 }
 
@@ -655,6 +679,10 @@ impl MyWndProc {
                 DeferredOp::SetAlwaysOnTop(always_on_top) => {
                     self.with_window_state(|s| s.is_always_on_top.set(always_on_top));
                     set_ex_style(hwnd, always_on_top);
+                }
+                DeferredOp::SetMousePassThrough(mouse_pass_through) => {
+                    self.with_window_state(|s| s.is_mouse_pass_through.set(mouse_pass_through));
+                    set_mouse_pass_through(hwnd, mouse_pass_through);
                 }
                 DeferredOp::SetWindowState(val) => {
                     let show = if self.handle.borrow().is_focusable() {
@@ -1076,7 +1104,7 @@ impl WndProc for MyWndProc {
                             // When maximized, windows still adds offsets for the frame
                             // so we counteract them here.
                             let s: *mut NCCALCSIZE_PARAMS = lparam as *mut NCCALCSIZE_PARAMS;
-                            if let Some(mut s) = s.as_mut() {
+                            if let Some(s) = s.as_mut() {
                                 let border = self.get_system_metric(SM_CXPADDEDBORDER);
                                 let frame = self.get_system_metric(SM_CYSIZEFRAME);
                                 s.rgrc[0].top += border + frame;
@@ -1499,6 +1527,7 @@ impl WindowBuilder {
             position: None,
             level: None,
             always_on_top: false,
+            mouse_pass_through: false,
             state: window::WindowState::Restored,
         }
     }
@@ -1657,6 +1686,7 @@ impl WindowBuilder {
                 is_focusable: focusable,
                 window_level,
                 is_always_on_top: Cell::new(self.always_on_top),
+                is_mouse_pass_through: Cell::new(self.mouse_pass_through),
             };
             let win = Rc::new(window);
             let handle = WindowHandle {
@@ -2261,12 +2291,24 @@ impl WindowHandle {
         Size::new(0.0, 0.0)
     }
 
+    pub fn is_foreground_window(&self) -> bool {
+        let Some(w) = self.state.upgrade() else {
+            return true;
+        };
+        let hwnd = w.hwnd.get();
+        unsafe { GetForegroundWindow() == hwnd }
+    }
+
     pub fn set_input_region(&self, area: Option<Region>) {
         self.defer(DeferredOp::SetRegion(area));
     }
 
     pub fn set_always_on_top(&self, always_on_top: bool) {
         self.defer(DeferredOp::SetAlwaysOnTop(always_on_top));
+    }
+
+    pub fn set_mouse_pass_through(&self, mouse_pass_through: bool) {
+        self.defer(DeferredOp::SetMousePassThrough(mouse_pass_through));
     }
 
     pub fn resizable(&self, resizable: bool) {
@@ -2443,7 +2485,7 @@ impl WindowHandle {
                 };
                 let icon = CreateIconIndirect(&mut icon_info);
 
-                Some(Cursor::Custom(CustomCursor(Arc::new(HCursor(icon)))))
+                Some(Cursor::Custom(CustomCursor(Rc::new(HCursor(icon)))))
             }
         } else {
             None

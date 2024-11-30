@@ -1,16 +1,5 @@
-// Copyright 2018 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2018 the Druid Authors
+// SPDX-License-Identifier: Apache-2.0
 
 //! The fundamental Druid types.
 
@@ -475,7 +464,8 @@ impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
 
         if !self.is_initialized() {
             debug_panic!(
-                "{:?}: paint method called before receiving WidgetAdded.",
+                "{:?} with widget id {:?}: paint method called before receiving WidgetAdded.",
+                self.inner.type_name(),
                 ctx.widget_id()
             );
             return;
@@ -549,7 +539,8 @@ impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
     ) -> Size {
         if !self.is_initialized() {
             debug_panic!(
-                "{:?}: layout method called before receiving WidgetAdded.",
+                "{:?} with widget id {:?}: layout method called before receiving WidgetAdded.",
+                self.inner.type_name(),
                 ctx.widget_id()
             );
             return Size::ZERO;
@@ -608,7 +599,8 @@ impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
     pub fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
         if !self.is_initialized() {
             debug_panic!(
-                "{:?}: event method called before receiving WidgetAdded.",
+                "{:?} with widget id {:?}: event method called before receiving WidgetAdded.",
+                self.inner.type_name(),
                 ctx.widget_id()
             );
             return;
@@ -617,8 +609,9 @@ impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
         // log if we seem not to be laid out when we should be
         if self.state.is_expecting_set_origin_call && !event.should_propagate_to_hidden() {
             warn!(
-                "{:?} received an event ({:?}) without having been laid out. \
+                "{:?} with widget id {:?} received an event ({:?}) without having been laid out. \
                 This likely indicates a missed call to set_origin.",
+                self.inner.type_name(),
                 ctx.widget_id(),
                 event,
             );
@@ -1015,7 +1008,8 @@ impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
             }
             _ if !self.is_initialized() => {
                 debug_panic!(
-                    "{:?}: received LifeCycle::{:?} before WidgetAdded.",
+                    "{:?} with widget id {:?}: received LifeCycle::{:?} before WidgetAdded.",
+                    self.inner.type_name(),
                     self.id(),
                     event
                 );
@@ -1149,7 +1143,8 @@ impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
                 (Some(_), None) => self.env = Some(env.clone()),
                 (None, _) => {
                     debug_panic!(
-                        "{:?} is receiving an update without having first received WidgetAdded.",
+                        "{:?} with widget id {:?} is receiving an update without having first received WidgetAdded.",
+                        self.inner.type_name(),
                         self.id()
                     );
                     return;
